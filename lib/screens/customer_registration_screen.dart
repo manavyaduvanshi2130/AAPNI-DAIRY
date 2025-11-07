@@ -6,10 +6,12 @@ class CustomerRegistrationScreen extends StatefulWidget {
   const CustomerRegistrationScreen({Key? key}) : super(key: key);
 
   @override
-  _CustomerRegistrationScreenState createState() => _CustomerRegistrationScreenState();
+  _CustomerRegistrationScreenState createState() =>
+      _CustomerRegistrationScreenState();
 }
 
-class _CustomerRegistrationScreenState extends State<CustomerRegistrationScreen> {
+class _CustomerRegistrationScreenState
+    extends State<CustomerRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   List<Customer> _customers = [];
@@ -46,6 +48,86 @@ class _CustomerRegistrationScreenState extends State<CustomerRegistrationScreen>
         _showCustomerList = true; // Show customer list after registration
       });
     }
+  }
+
+  Future<void> _editCustomer(Customer customer) async {
+    final TextEditingController editController = TextEditingController(
+      text: customer.name,
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Edit Customer'),
+          content: TextField(
+            controller: editController,
+            decoration: const InputDecoration(labelText: 'Customer Name'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                String newName = editController.text.trim();
+                if (newName.isNotEmpty) {
+                  Customer updatedCustomer = Customer(
+                    id: customer.id!,
+                    name: newName,
+                  );
+                  await DatabaseHelper().updateCustomerByObject(
+                    updatedCustomer,
+                  );
+                  Navigator.of(context).pop();
+                  _loadCustomers(); // Refresh the list
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Customer updated successfully'),
+                    ),
+                  );
+                }
+              },
+              child: const Text('Update'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteCustomer(Customer customer) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Customer'),
+          content: Text(
+            'Are you sure you want to delete ${customer.name}? This will also delete all their milk entries.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await DatabaseHelper().deleteCustomerAndResetIds(customer.id!);
+                Navigator.of(context).pop();
+                _loadCustomers(); // Refresh the list
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Customer deleted successfully'),
+                  ),
+                );
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -97,7 +179,10 @@ class _CustomerRegistrationScreenState extends State<CustomerRegistrationScreen>
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            prefixIcon: Icon(Icons.person, color: Colors.blue.shade700),
+                            prefixIcon: Icon(
+                              Icons.person,
+                              color: Colors.blue.shade700,
+                            ),
                             filled: true,
                             fillColor: Colors.grey.shade50,
                           ),
@@ -116,7 +201,10 @@ class _CustomerRegistrationScreenState extends State<CustomerRegistrationScreen>
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green.shade600,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -151,7 +239,11 @@ class _CustomerRegistrationScreenState extends State<CustomerRegistrationScreen>
                         _loadCustomers();
                       }
                     },
-                    icon: Icon(_showCustomerList ? Icons.visibility_off : Icons.visibility),
+                    icon: Icon(
+                      _showCustomerList
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
                     label: Text(_showCustomerList ? 'Hide List' : 'Show List'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue.shade600,
@@ -206,9 +298,25 @@ class _CustomerRegistrationScreenState extends State<CustomerRegistrationScreen>
                                   ),
                                 ),
                                 subtitle: Text('ID: ${customer.id}'),
-                                trailing: Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green.shade600,
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.edit,
+                                        color: Colors.blue.shade600,
+                                      ),
+                                      onPressed: () => _editCustomer(customer),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.delete,
+                                        color: Colors.red.shade600,
+                                      ),
+                                      onPressed: () =>
+                                          _deleteCustomer(customer),
+                                    ),
+                                  ],
                                 ),
                               );
                             },

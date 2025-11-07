@@ -125,7 +125,8 @@ class DatabaseHelper {
     final db = await database;
 
     // Auto-calculate rate and amount
-    double rate = (Constants.rateConstantA * entry.fat) + Constants.rateConstantB;
+    double rate =
+        (Constants.rateConstantA * entry.fat) + Constants.rateConstantB;
     double amount = rate * entry.quantity;
 
     final data = entry.toMap()
@@ -166,7 +167,11 @@ class DatabaseHelper {
     return result.map((map) => MilkEntry.fromMap(map)).toList();
   }
 
-  Future<List<MilkEntry>> getMilkEntriesByCustomerAndRange(int customerId, String startDate, String endDate) async {
+  Future<List<MilkEntry>> getMilkEntriesByCustomerAndRange(
+    int customerId,
+    String startDate,
+    String endDate,
+  ) async {
     final db = await database;
     final result = await db.query(
       'milk_entries',
@@ -177,7 +182,10 @@ class DatabaseHelper {
     return result.map((map) => MilkEntry.fromMap(map)).toList();
   }
 
-  Future<List<MilkEntry>> getMilkEntriesInRange(String startDate, String endDate) async {
+  Future<List<MilkEntry>> getMilkEntriesInRange(
+    String startDate,
+    String endDate,
+  ) async {
     final db = await database;
     final result = await db.query(
       'milk_entries',
@@ -199,10 +207,7 @@ class DatabaseHelper {
         orderBy: 'shift ASC',
       );
     } else {
-      result = await db.query(
-        'milk_entries',
-        orderBy: 'date DESC, shift ASC',
-      );
+      result = await db.query('milk_entries', orderBy: 'date DESC, shift ASC');
     }
     return result.map((map) => MilkEntry.fromMap(map)).toList();
   }
@@ -210,7 +215,8 @@ class DatabaseHelper {
   Future<int> updateMilkEntry(MilkEntry entry) async {
     final db = await database;
 
-    double rate = (Constants.rateConstantA * entry.fat) + Constants.rateConstantB;
+    double rate =
+        (Constants.rateConstantA * entry.fat) + Constants.rateConstantB;
     double amount = rate * entry.quantity;
 
     final data = entry.toMap()
@@ -231,20 +237,28 @@ class DatabaseHelper {
   }
 
   // Get all customers who have milk entries for a specific date
-  Future<List<Map<String, dynamic>>> getCustomersWithEntriesForDate(String date) async {
+  Future<List<Map<String, dynamic>>> getCustomersWithEntriesForDate(
+    String date,
+  ) async {
     final db = await database;
-    final result = await db.rawQuery('''
+    final result = await db.rawQuery(
+      '''
       SELECT DISTINCT c.id, c.name
       FROM customers c
       INNER JOIN milk_entries me ON c.id = me.customer_id
       WHERE me.date = ?
       ORDER BY c.id ASC
-    ''', [date]);
+    ''',
+      [date],
+    );
     return result;
   }
 
   // Get milk entries for a specific customer on a specific date
-  Future<List<MilkEntry>> getMilkEntriesByCustomerAndDate(int customerId, String date) async {
+  Future<List<MilkEntry>> getMilkEntriesByCustomerAndDate(
+    int customerId,
+    String date,
+  ) async {
     final db = await database;
     final result = await db.query(
       'milk_entries',
@@ -259,11 +273,10 @@ class DatabaseHelper {
 
   Future<void> saveSetting(String key, String value) async {
     final db = await database;
-    await db.insert(
-      'settings',
-      {'key': key, 'value': value},
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('settings', {
+      'key': key,
+      'value': value,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<String?> getSetting(String key) async {
@@ -278,5 +291,65 @@ class DatabaseHelper {
       return result.first['value'] as String;
     }
     return null;
+  }
+
+  // Update customer name (overloaded method)
+  Future<int> updateCustomerByObject(Customer customer) async {
+    final db = await database;
+    return await db.update(
+      'customers',
+      customer.toMap(),
+      where: 'id = ?',
+      whereArgs: [customer.id],
+    );
+  }
+
+  // Delete customer (overloaded method)
+  Future<int> deleteCustomerAndResetIds(int id) async {
+    final db = await database;
+    int result = await db.delete('customers', where: 'id = ?', whereArgs: [id]);
+    if (result > 0) {
+      await resetCustomerIds();
+    }
+    return result;
+  }
+
+  // Reset customer IDs to sequential after delete
+  Future<void> resetCustomerIds() async {
+    final db = await database;
+
+    // Disable foreign key constraints
+    await db.execute("PRAGMA foreign_keys = OFF");
+
+    // Create temporary table with new sequential IDs
+    await db.execute('''
+      CREATE TABLE customers_temp (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL
+      )
+    ''');
+
+    // Insert customers with new IDs
+    await db.execute('''
+      INSERT INTO customers_temp (name)
+      SELECT name FROM customers ORDER BY id ASC
+    ''');
+
+    // Update milk_entries with new customer IDs
+    await db.execute('''
+      UPDATE milk_entries
+      SET customer_id = (
+        SELECT ct.id
+        FROM customers_temp ct
+        WHERE ct.name = (SELECT c.name FROM customers c WHERE c.id = milk_entries.customer_id)
+      )
+    ''');
+
+    // Drop old table and rename temp
+    await db.execute('DROP TABLE customers');
+    await db.execute('ALTER TABLE customers_temp RENAME TO customers');
+
+    // Re-enable foreign key constraints
+    await db.execute("PRAGMA foreign_keys = ON");
   }
 }
