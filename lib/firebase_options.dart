@@ -49,11 +49,11 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-    appId: '1:123456789012:android:abcdef1234567890abcdef',
-    messagingSenderId: '123456789012',
+    apiKey: 'AIzaSyCGnVQDEenr7D7dWxcGYQ-ZN5U7ripuFR0',
+    appId: '1:380811070412:android:4cf213ee0bfefe51d3eb69',
+    messagingSenderId: '380811070412',
     projectId: 'aapni-dairy',
-    storageBucket: 'aapni-dairy.appspot.com',
+    storageBucket: 'aapni-dairy.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
