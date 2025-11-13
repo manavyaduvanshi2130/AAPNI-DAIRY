@@ -1,21 +1,22 @@
-# TODO List for Milk Entry and Customer Registration Updates
+# TODO List for AAPNI DAIRY App Updates
 
-## 1. Add Tab Navigation to Milk Entry Screen
-- [x] Add FocusNodes for each TextFormField (customerId, quantity, fat, snf)
-- [x] Wrap form in FocusTraversalGroup
-- [x] Implement tab key handling to move focus between fields
+## Customer Registration Screen
+- [x] Fix edit button visibility on mobile devices (ensure IconButtons are properly sized and visible in ListTile trailing)
 
-## 2. Add Edit/Delete Options to Customer Registration Screen
-- [x] Modify ListTile in customer list to include trailing Row with edit and delete icons
-- [x] Implement edit functionality: Show dialog with TextField for new name, call updateCustomer
-- [x] Implement delete functionality: Show confirmation dialog, call deleteCustomer, then reset IDs
+## Milk Entry Screen
+- [x] Add keyboard tab navigation between form fields (implement onFieldSubmitted for Tab key to move focus)
 
-## 3. Implement Customer ID Reset Logic
-- [x] Add resetCustomerIds method in DatabaseHelper: Disable FK, recreate customers table with new sequential IDs, update milk_entries references, re-enable FK
-- [x] Call resetCustomerIds after successful delete in CustomerRegistrationScreen
+## Home Screen
+- [x] Add animation to the home screen (e.g., fade-in or slide-in animation for grid items or cards)
 
-## 4. Testing and Verification
-- [x] Test tab navigation in MilkEntryScreen
-- [x] Test edit customer name
-- [x] Test delete customer and verify ID reset
-- [x] Verify milk_entries are updated correctly after ID reset
+## Firebase Integration
+- [x] Integrate Firebase for cloud database storage with email-based authentication
+- [x] Enable data backup to Firebase and restore on app reinstall after login
+- [x] Migrate from local SQLite to Firestore for persistent data storage
+- [x] Create firebase_options.dart with project configuration
+- [x] Update FirebaseService to use DefaultFirebaseOptions
+- [x] Update main.dart to import firebase_options.dart
+
+## Testing
+- [ ] Test all changes on mobile emulator to ensure visibility and functionality
+- [ ] Test Firebase authentication flow, data sync on login, data restoration after app reinstall

@@ -3,6 +3,8 @@ import 'package:path/path.dart';
 import 'package:aapni_dairy/models/customer.dart';
 import 'package:aapni_dairy/models/milk_entry.dart';
 import 'package:aapni_dairy/constants.dart';
+import 'package:aapni_dairy/services/firestore_service.dart';
+import 'package:aapni_dairy/services/firebase_service.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -10,6 +12,7 @@ class DatabaseHelper {
   DatabaseHelper._internal();
 
   static Database? _database;
+  final FirestoreService _firestoreService = FirestoreService();
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -80,17 +83,49 @@ class DatabaseHelper {
   // ---------------- CUSTOMER OPERATIONS ----------------
 
   Future<int> insertCustomer(Customer customer) async {
+    try {
+      // Try Firestore first
+      if (FirebaseService().isAuthenticated) {
+        final docId = await _firestoreService.addCustomer(customer);
+        customer.id = int.tryParse(docId); // Store Firestore ID as local ID
+      }
+    } catch (e) {
+      print('Firestore insert failed, using local DB: $e');
+    }
+
+    // Always insert to local DB as backup
     final db = await database;
     return await db.insert('customers', customer.toMap());
   }
 
   Future<List<Customer>> getAllCustomers() async {
+    try {
+      // Try Firestore first if authenticated
+      if (FirebaseService().isAuthenticated) {
+        return await _firestoreService.getCustomers();
+      }
+    } catch (e) {
+      print('Firestore query failed, using local DB: $e');
+    }
+
+    // Fallback to local DB
     final db = await database;
     final result = await db.query('customers', orderBy: 'id ASC');
     return result.map((map) => Customer.fromMap(map)).toList();
   }
 
   Future<int> updateCustomer(int id, String newName) async {
+    try {
+      // Try Firestore first
+      if (FirebaseService().isAuthenticated) {
+        final customer = Customer(id: id, name: newName);
+        await _firestoreService.updateCustomer(id.toString(), customer);
+      }
+    } catch (e) {
+      print('Firestore update failed, using local DB: $e');
+    }
+
+    // Always update local DB
     final db = await database;
     return await db.update(
       'customers',
@@ -101,6 +136,16 @@ class DatabaseHelper {
   }
 
   Future<int> deleteCustomer(int id) async {
+    try {
+      // Try Firestore first
+      if (FirebaseService().isAuthenticated) {
+        await _firestoreService.deleteCustomer(id.toString());
+      }
+    } catch (e) {
+      print('Firestore delete failed, using local DB: $e');
+    }
+
+    // Always delete from local DB
     final db = await database;
     return await db.delete('customers', where: 'id = ?', whereArgs: [id]);
   }
@@ -122,6 +167,17 @@ class DatabaseHelper {
   // ---------------- MILK ENTRY OPERATIONS ----------------
 
   Future<int> insertMilkEntry(MilkEntry entry) async {
+    try {
+      // Try Firestore first
+      if (FirebaseService().isAuthenticated) {
+        final docId = await _firestoreService.addMilkEntry(entry);
+        entry.id = int.tryParse(docId); // Store Firestore ID as local ID
+      }
+    } catch (e) {
+      print('Firestore insert failed, using local DB: $e');
+    }
+
+    // Always insert to local DB as backup
     final db = await database;
 
     // Auto-calculate rate and amount
@@ -137,6 +193,16 @@ class DatabaseHelper {
   }
 
   Future<List<MilkEntry>> getAllMilkEntries() async {
+    try {
+      // Try Firestore first if authenticated
+      if (FirebaseService().isAuthenticated) {
+        return await _firestoreService.getMilkEntries();
+      }
+    } catch (e) {
+      print('Firestore query failed, using local DB: $e');
+    }
+
+    // Fallback to local DB
     final db = await database;
     final result = await db.query(
       'milk_entries',
@@ -213,6 +279,16 @@ class DatabaseHelper {
   }
 
   Future<int> updateMilkEntry(MilkEntry entry) async {
+    try {
+      // Try Firestore first
+      if (FirebaseService().isAuthenticated) {
+        await _firestoreService.updateMilkEntry(entry.id.toString(), entry);
+      }
+    } catch (e) {
+      print('Firestore update failed, using local DB: $e');
+    }
+
+    // Always update local DB
     final db = await database;
 
     double rate =
@@ -232,6 +308,16 @@ class DatabaseHelper {
   }
 
   Future<int> deleteMilkEntry(int id) async {
+    try {
+      // Try Firestore first
+      if (FirebaseService().isAuthenticated) {
+        await _firestoreService.deleteMilkEntry(id.toString());
+      }
+    } catch (e) {
+      print('Firestore delete failed, using local DB: $e');
+    }
+
+    // Always delete from local DB
     final db = await database;
     return await db.delete('milk_entries', where: 'id = ?', whereArgs: [id]);
   }
@@ -272,6 +358,16 @@ class DatabaseHelper {
   // ---------------- SETTINGS OPERATIONS ----------------
 
   Future<void> saveSetting(String key, String value) async {
+    try {
+      // Try Firestore first
+      if (FirebaseService().isAuthenticated) {
+        await _firestoreService.saveSetting(key, value);
+      }
+    } catch (e) {
+      print('Firestore save setting failed, using local DB: $e');
+    }
+
+    // Always save to local DB
     final db = await database;
     await db.insert('settings', {
       'key': key,
@@ -280,6 +376,16 @@ class DatabaseHelper {
   }
 
   Future<String?> getSetting(String key) async {
+    try {
+      // Try Firestore first if authenticated
+      if (FirebaseService().isAuthenticated) {
+        return await _firestoreService.getSetting(key);
+      }
+    } catch (e) {
+      print('Firestore get setting failed, using local DB: $e');
+    }
+
+    // Fallback to local DB
     final db = await database;
     final result = await db.query(
       'settings',

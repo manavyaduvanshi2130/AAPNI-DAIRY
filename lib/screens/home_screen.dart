@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marquee/marquee.dart';
 import '../constants.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -16,7 +17,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -27,7 +30,9 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           children: [
             // Header
-            Container(
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOut,
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
               decoration: BoxDecoration(
@@ -48,34 +53,66 @@ class HomeScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  Text(
-                    dairyName,
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                       letterSpacing: 1.2,
                     ),
-                    textAlign: TextAlign.center,
+                    child: Text(dairyName, textAlign: TextAlign.center),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    ownerName,
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white,
                       fontWeight: FontWeight.w300,
                     ),
+                    child: Text(ownerName),
                   ),
-                  Text(
-                    'Mob: $mobileNumber',
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.white,
                       fontWeight: FontWeight.w300,
                     ),
+                    child: Text('Mob: $mobileNumber'),
                   ),
                 ],
+              ),
+            ),
+
+            // Animated Text
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOut,
+              height: 40,
+              color: Colors.yellow.shade100,
+              child: Marquee(
+                text:
+                    '<Welcome to 2130 GROUP><Your data will remain with you only. This is a serverless app that works completely offline. If your app gets uninstalled, complete data will be lost. The company will not be responsible for this>',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                scrollAxis: Axis.horizontal,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                blankSpace: 20.0,
+                velocity: 50.0,
+                pauseAfterRound: const Duration(seconds: 1),
+                startPadding: 10.0,
+                accelerationDuration: const Duration(seconds: 1),
+                accelerationCurve: Curves.linear,
+                decelerationDuration: const Duration(milliseconds: 500),
+                decelerationCurve: Curves.easeOut,
               ),
             ),
 
@@ -88,75 +125,85 @@ class HomeScreen extends StatelessWidget {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                   children: [
-                    _buildMenuCard(
+                    _buildAnimatedMenuCard(
                       context,
                       'Customer Registration',
                       Icons.person_add,
                       Colors.green,
                       '/customer_registration',
+                      0,
                     ),
-                    _buildMenuCard(
+                    _buildAnimatedMenuCard(
                       context,
                       'Milk Entry',
                       Icons.local_drink,
                       Colors.orange,
                       '/milk_entry',
+                      1,
                     ),
-                    _buildMenuCard(
+                    _buildAnimatedMenuCard(
                       context,
                       'Edit/Delete Entries',
                       Icons.edit,
                       Colors.purple,
                       '/edit_delete_entries',
+                      2,
                     ),
-                    _buildMenuCard(
+                    _buildAnimatedMenuCard(
                       context,
                       'Edit Rate',
                       Icons.attach_money,
                       Colors.teal,
                       '/edit_rate',
+                      3,
                     ),
-                    _buildMenuCard(
+                    _buildAnimatedMenuCard(
                       context,
                       'Daily Summary',
                       Icons.calendar_today,
                       Colors.indigo,
                       '/daily_summary',
+                      4,
                     ),
-                    _buildMenuCard(
+                    _buildAnimatedMenuCard(
                       context,
                       'Customer Summary PDF',
                       Icons.picture_as_pdf,
                       Colors.red,
                       '/customer_summary_pdf',
+                      5,
                     ),
-                    _buildMenuCard(
+                    _buildAnimatedMenuCard(
                       context,
                       'Export Total PDF',
                       Icons.file_download,
                       Colors.brown,
                       '/export_total_pdf',
+                      6,
                     ),
-                    _buildMenuCard(
+                    _buildAnimatedMenuCard(
                       context,
                       'Total Summary PDF',
                       Icons.summarize,
                       Colors.pink,
                       '/total_summary_pdf',
+                      7,
                     ),
-                    _buildMenuCard(
+                    _buildAnimatedMenuCard(
                       context,
                       'Export Customer PDF',
                       Icons.group,
                       Colors.cyan,
                       '/export_customer_pdf',
+                      8,
                     ),
-                    _buildMenuCard(
+                    _buildAnimatedMenuCard(
                       context,
                       'Settings',
                       Icons.settings,
                       Colors.grey,
                       '/settings',
+                      9,
                     ),
                   ],
                 ),
@@ -165,23 +212,29 @@ class HomeScreen extends StatelessWidget {
 
             // Footer
             if (Constants.madeBy.isNotEmpty)
-              Container(
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 20,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade100,
                   border: Border(
                     top: BorderSide(color: Colors.grey.shade300, width: 1),
                   ),
                 ),
-                child: Text(
-                  Constants.madeBy,
+                child: AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey.shade600,
                     fontWeight: FontWeight.w400,
                   ),
-                  textAlign: TextAlign.center,
+                  child: Text(Constants.madeBy, textAlign: TextAlign.center),
                 ),
               ),
           ],
@@ -190,12 +243,16 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuCard(BuildContext context, String title, IconData icon, Color color, String route) {
+  Widget _buildMenuCard(
+    BuildContext context,
+    String title,
+    IconData icon,
+    Color color,
+    String route,
+  ) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: () => Navigator.pushNamed(context, route),
         borderRadius: BorderRadius.circular(16),
@@ -212,11 +269,7 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                size: 40,
-                color: color,
-              ),
+              Icon(icon, size: 40, color: color),
               const SizedBox(height: 12),
               Text(
                 title,
@@ -231,6 +284,30 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildAnimatedMenuCard(
+    BuildContext context,
+    String title,
+    IconData icon,
+    Color color,
+    String route,
+    int index,
+  ) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0.0, end: 1.0),
+      duration: Duration(milliseconds: 500 + (index * 100)),
+      curve: Curves.easeOut,
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: value,
+          child: Opacity(
+            opacity: value,
+            child: _buildMenuCard(context, title, icon, color, route),
+          ),
+        );
+      },
     );
   }
 }

@@ -305,14 +305,18 @@ class _CustomerRegistrationScreenState
                                       icon: Icon(
                                         Icons.edit,
                                         color: Colors.blue.shade600,
+                                        size: 28,
                                       ),
+                                      tooltip: 'Edit Customer',
                                       onPressed: () => _editCustomer(customer),
                                     ),
                                     IconButton(
                                       icon: Icon(
                                         Icons.delete,
                                         color: Colors.red.shade600,
+                                        size: 28,
                                       ),
+                                      tooltip: 'Delete Customer',
                                       onPressed: () =>
                                           _deleteCustomer(customer),
                                     ),

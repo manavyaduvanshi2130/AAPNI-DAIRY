@@ -182,6 +182,8 @@ class _MilkEntryScreenState extends State<MilkEntryScreen> {
                   ),
                   keyboardType: TextInputType.number,
                   onChanged: (value) => _fetchCustomerName(),
+                  onFieldSubmitted: (_) =>
+                      FocusScope.of(context).requestFocus(_quantityFocus),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Please enter customer ID';
@@ -238,6 +240,8 @@ class _MilkEntryScreenState extends State<MilkEntryScreen> {
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
+                  onFieldSubmitted: (_) =>
+                      FocusScope.of(context).requestFocus(_fatFocus),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Please enter quantity';
@@ -259,6 +263,8 @@ class _MilkEntryScreenState extends State<MilkEntryScreen> {
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
+                  onFieldSubmitted: (_) =>
+                      FocusScope.of(context).requestFocus(_snfFocus),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Please enter fat';
@@ -280,6 +286,7 @@ class _MilkEntryScreenState extends State<MilkEntryScreen> {
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
+                  onFieldSubmitted: (_) => _saveMilkEntry(),
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(

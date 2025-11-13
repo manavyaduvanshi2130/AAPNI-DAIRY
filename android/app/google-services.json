@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "380811070412",
+    "project_id": "aapni-dairy",
+    "storage_bucket": "aapni-dairy.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:380811070412:android:4cf213ee0bfefe51d3eb69",
+        "android_client_info": {
+          "package_name": "com.example.hrbdairy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGnVQDEenr7D7dWxcGYQ-ZN5U7ripuFR0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
